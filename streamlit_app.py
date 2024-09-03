@@ -26,9 +26,9 @@ with st.echo(code_location="below"):
     num = st.slider("Number of top pincodes to show", 1, 10, 5)
 
     # df = pd.read_csv("../datasets/Aadhaar.csv")
-    import os
+    # import os
 
-    print(os.getcwd())
+    # print(os.getcwd())
 
     df = pd.read_csv("datasets/Aadhaar-small-cleaned.csv")
 
@@ -43,7 +43,7 @@ with st.echo(code_location="below"):
         .sort_values(ascending=False, ignore_index=True)
     )
     data = data.head(num)
-    print(data)
+    # print(data)
 
     st.write(f"Total Count: {total_count}")
     st.write(f"Total Pincode Count: {total_pincode_count}")
