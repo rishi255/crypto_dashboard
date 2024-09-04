@@ -1,23 +1,17 @@
-from collections import namedtuple
 import altair as alt
-import math
 import pandas as pd
 import streamlit as st
-import numpy as np
-
-"""
-# Welcome to Streamlit!
-
-Edit `/streamlit_app.py` to customize this app to your heart's desire :heart:
-
-If you have any questions, checkout our [documentation](https://docs.streamlit.io) and [community
-forums](https://discuss.streamlit.io).
-
-In the meantime, below is an example of what you can do with just a few lines of code:
-"""
-
 
 with st.echo(code_location="below"):
+    """
+    # Welcome to Streamlit!
+
+    This is a simple demo app created by me.
+
+    Dataset used: Aadhaar dataset that contains # of Aadhaar IDs generated at (I think) the Sub-district level (or something similar).
+    User Input: # of top pin-codes to show.
+    Output: Top n pin-codes where highest number of Aadhaars were generated.
+    """
 
     # generate descending order of pincodes (based on # of aadhaar generated)
     # let user pick # of top records to show (= n)
@@ -26,35 +20,33 @@ with st.echo(code_location="below"):
     num = st.slider("Number of top pincodes to show", 1, 10, 5)
 
     # df = pd.read_csv("../datasets/Aadhaar.csv")
-    # import os
-
-    # print(os.getcwd())
-
     df = pd.read_csv("datasets/Aadhaar-small-cleaned.csv")
 
     # grain check: check if the grain is at pincode level
     total_pincode_count = df["Pin Code"].unique().size  # 17103
-    total_count = len(df.index)  # 222281
+    total_count = df.shape[0]  # 222281
 
-    # so clearly not at pincode level. let's group it and aggregate
+    # so clearly not at pincode level. let's group it and aggregate df.
     data = (
         df.groupby("Pin Code")["Aadhaar generated"]
         .sum()
-        .sort_values(ascending=False, ignore_index=True)
-    )
+        .sort_values(
+            ascending=False,
+        )
+    ).reset_index()
     data = data.head(num)
-    # print(data)
 
     st.write(f"Total Count: {total_count}")
     st.write(f"Total Pincode Count: {total_pincode_count}")
 
-    st.bar_chart(
-        data,
-        x_label="pincodes",
-        y_label="# of Aadhaars generated",
+    # create altair bar chart
+    chart = (
+        alt.Chart(data, height=500, width=500)
+        .mark_bar()
+        .encode(
+            x=alt.X(field="Pin Code", type="nominal").sort("-y"), y="Aadhaar generated"
+        )
     )
-    # st.altair_chart(
-    #     alt.Chart(pd.DataFrame(data), height=500, width=500)
-    #     .mark_circle(color="#0068c9", opacity=0.5)
-    #     .encode(x="x:Q", y="y:Q")
-    # )
+
+    # write chart to page
+    st.altair_chart(chart)
